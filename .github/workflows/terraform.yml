@@ -1,0 +1,104 @@
+name: "Terraform"
+
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        required: true
+        type: string
+      terraform_api:
+        required: true
+        type: string
+      github_username:
+        required: true
+        type: string
+      github_email:
+        required: true
+        type: string
+    secrets:
+      TFE_TOKEN:
+        required: true
+      GITHUB_TOKEN:
+        required: true
+
+jobs:
+  terraform:
+    name: "Terraform FMT and Validation"
+    runs-on: self-hosted
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
+          cli_config_credentials_hostname: ${{ inputs.terraform_api }}
+
+      - name: Terraform Format
+        id: fmt
+        run: |
+          terraform fmt
+          if ! git diff-index --quiet HEAD; then
+            git config --global user.name '${{ inputs.github_username }}'
+            git config --global user.email '${{ inputs.github_email }}'
+            git commit -am "Autoformatting TF Code"
+            git push 
+            echo "auto_format=true" >> $GITHUB_ENV
+          fi
+
+      
+      - name: Autoformat Halt
+        if: env.auto_format == 'true'
+        run: exit 0
+        
+      - name: Terraform Init
+        id: init
+        run: terraform init || echo 1 | terraform init
+      
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform Test
+        id: test
+        run: stat *.tftest.hcl >/dev/null 2>&1 && terraform test || echo "No test files found"
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Init Status
+        if: steps.init.outcome == 'failure'
+        run: exit 1
+
+      - name: Terraform FMT Status
+        if: steps.fmt.outcome == 'failure'
+        run: exit 1
+
+      - name: Terraform Validate Status
+        if: steps.validate.outcome == 'failure'
+        run: exit 1
