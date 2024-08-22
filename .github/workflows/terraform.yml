@@ -21,10 +21,11 @@ on:
     secrets:
       TFE_TOKEN:
         required: true
-
+      GH_TOKEN:
+        required: true
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
   
 jobs:
   terraform:
@@ -36,6 +37,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
+          persist-credentials: false
           
       - uses: actions/setup-node@v3
         with:
@@ -50,17 +52,14 @@ jobs:
 
       - name: Terraform Format
         id: fmt
-        run: |
-          terraform fmt
-          if ! git diff-index --quiet HEAD; then
-            git config --global user.name '${{ inputs.github_username }}'
-            git config --global user.email '${{ inputs.github_email }}'
-            git commit -am "Autoformatting TF Code"
-            git push 
-            echo "auto_format=true" >> $GITHUB_ENV
-          fi
+        run: terraform fmt
 
-      
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          message: Terraform AutoFormat
+
       - name: Autoformat Halt
         if: env.auto_format == 'true'
         run: exit 0
