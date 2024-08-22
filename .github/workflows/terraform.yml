@@ -61,7 +61,7 @@ jobs:
           message: Terraform AutoFormat
           author_email: ${{ inputs.github_email }}
           author_name: ${{ inputs.github_username }}
-          branch: ${{ github.ref }}
+          branch: ${{ github.head_ref }}
           # rebase: true
           # force: true
 
