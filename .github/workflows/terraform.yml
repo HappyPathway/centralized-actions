@@ -42,7 +42,7 @@ jobs:
           node-version: 16
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v3.1.2
         with:
           terraform_version: ${{ inputs.terraform_version }}
           cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
@@ -75,7 +75,7 @@ jobs:
 
       - name: Terraform Test
         id: test
-        run: stat *.tftest.hcl >/dev/null 2>&1 && terraform test || echo "No test files found"
+        run: terraform test
 
       - name: Update Pull Request
         uses: actions/github-script@v6
@@ -86,6 +86,7 @@ jobs:
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Test 🤖\`${{ steps.test.outcome }}\`
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
             github.rest.issues.createComment({
