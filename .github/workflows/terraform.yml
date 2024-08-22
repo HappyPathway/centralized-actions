@@ -54,21 +54,6 @@ jobs:
         id: fmt
         run: terraform fmt
 
-      - name: Commit & Push changes
-        uses: actions-js/push@master
-        with:
-          github_token: ${{ secrets.GH_TOKEN }}
-          message: Terraform AutoFormat
-          author_email: ${{ inputs.github_email }}
-          author_name: ${{ inputs.github_username }}
-          branch: ${{ github.head_ref }}
-          # rebase: true
-          # force: true
-
-      - name: Autoformat Halt
-        if: env.auto_format == 'true'
-        run: exit 0
-        
       - name: Terraform Init
         id: init
         run: terraform init || echo 1 | terraform init
@@ -100,6 +85,17 @@ jobs:
               body: output
             })
 
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          message: Terraform AutoFormat
+          author_email: ${{ inputs.github_email }}
+          author_name: ${{ inputs.github_username }}
+          branch: ${{ github.head_ref }}
+          # rebase: true
+          # force: true
+          
       - name: Terraform Test Status
         if: steps.test.outcome == 'failure'
         run: exit 1
