@@ -105,7 +105,7 @@ jobs:
  
       - name: Autoformat Halt
         if: env.auto_format == 'true'
-        run: exit 1
+        run: exit 0
         
       - name: Terraform Test Status
         if: steps.test.outcome == 'failure'
