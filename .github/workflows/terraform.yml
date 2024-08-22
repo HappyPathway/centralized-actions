@@ -95,6 +95,10 @@ jobs:
               body: output
             })
 
+      - name: Terraform Test Status
+        if: steps.test.outcome == 'failure'
+        run: exit 1
+        
       - name: Terraform Init Status
         if: steps.init.outcome == 'failure'
         run: exit 1
