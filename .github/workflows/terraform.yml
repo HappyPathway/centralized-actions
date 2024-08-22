@@ -18,6 +18,10 @@ on:
       github_org:
         required: true
         type: string
+      autoformat_message:
+        default: "AutoFormat Commit"
+        type: string
+        required: false
     secrets:
       TFE_TOKEN:
         required: true
@@ -72,10 +76,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            #### Terraform Test 🤖\`${{ steps.test.outcome }}\`
+            const output = `#### Terraform Format and Style \`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙\`${{ steps.init.outcome }}\`
+            #### Terraform Validation \`${{ steps.validate.outcome }}\`
+            #### Terraform Test \`${{ steps.test.outcome }}\`
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
             github.rest.issues.createComment({
@@ -94,7 +98,7 @@ jobs:
             git config --local user.email "${{inputs.github_email}}"
             git config --local user.name "${{inputs.github_username}}"
             git add .
-            git commit -m "${{inputs.message}}"
+            git commit -m "${{inputs.autoformat_message}}"
             git push -u repo ${{ github.head_ref }}
             echo "auto_format=true" >> $GITHUB_ENV 
           fi
