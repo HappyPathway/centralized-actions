@@ -15,10 +15,17 @@ on:
       github_email:
         required: true
         type: string
+      github_org:
+        required: true
+        type: string
     secrets:
       TFE_TOKEN:
         required: true
 
+env:
+  GITHUB_OWNER: ${{ inputs.github_org }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
 jobs:
   terraform:
     name: "Terraform FMT and Validation"
