@@ -62,6 +62,7 @@ jobs:
           author_email: ${{ inputs.github_email }}
           author_name: ${{ inputs.github_username }}
           rebase: true
+          force: true
 
       - name: Autoformat Halt
         if: env.auto_format == 'true'
