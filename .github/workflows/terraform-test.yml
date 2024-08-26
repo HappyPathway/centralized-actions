@@ -117,13 +117,6 @@ jobs:
                 body: output
               })
             }
-
-      - name: Render terraform docs inside the README.md and push changes back to PR branch
-        uses: terraform-docs/gh-actions@v1.2.0
-        with:
-          working-dir: .
-          output-file: README.md
-          output-method: inject
         
       - name: Commit & Push changes
         run: |
@@ -138,11 +131,19 @@ jobs:
             git push -u repo ${{ github.head_ref }}
             echo "auto_format=true" >> $GITHUB_ENV 
           fi
- 
+
+      - name: Render terraform docs inside the README.md and push changes back to PR branch
+        uses: terraform-docs/gh-actions@v1.2.0
+        with:
+          working-dir: .
+          output-file: README.md
+          output-method: inject
+          git-push: true
+          
       - name: Autoformat Halt
         if: env.auto_format == 'true'
         run: exit 0
-        
+      
       - name: Terraform Test Status
         if: steps.test.outcome == 'failure'
         run: exit 1
