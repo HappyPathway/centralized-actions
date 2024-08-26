@@ -37,6 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      contents: write
     steps:
       - uses: actions/checkout@v2
         with:
@@ -70,6 +71,13 @@ jobs:
         id: test
         run: terraform test -no-color
 
+      - name: Render terraform docs inside the README.md and push changes back to PR branch
+        uses: terraform-docs/gh-actions@v1.2.0
+        with:
+          working-dir: .
+          output-file: README.md
+          output-method: inject
+          
       - name: Update Pull Request
         uses: actions/github-script@v6
         if: github.event_name == 'pull_request' && env.auto_format != 'true'
@@ -131,14 +139,6 @@ jobs:
             git push -u repo ${{ github.head_ref }}
             echo "auto_format=true" >> $GITHUB_ENV 
           fi
-
-      - name: Render terraform docs inside the README.md and push changes back to PR branch
-        uses: terraform-docs/gh-actions@v1.2.0
-        with:
-          working-dir: .
-          output-file: README.md
-          output-method: inject
-          git-push: true
           
       - name: Autoformat Halt
         if: env.auto_format == 'true'
