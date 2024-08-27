@@ -53,7 +53,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: GTag
+      - name: GTag (Minor)
+        if: ${{ inputs.minor == true }}
         run: |
-          python gtag.py
+          python gtag.py --minor
+
+      - name: GTag (Major)
+        if: ${{ inputs.major == true }}
+        run: |
+          python gtag.py --major
+
+      - name: GTag (Patch)
+        if: ${{ inputs.patch == true }}
+        run: |
+          python gtag.py --patch
       
