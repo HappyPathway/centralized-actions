@@ -54,7 +54,7 @@ jobs:
 
       - name: Download GTag
         run: |
-          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/.github/workflows/gtag.py
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/.github/workflows/gtag.py -o gtag.py
 
       - name: GTag (Minor)
         if: ${{ inputs.minor == true }}
