@@ -46,7 +46,7 @@ jobs:
       - name: Download GTag
         run: |
           curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/.github/workflows/gtag.py -o gtag.py
-          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/.github/workflows/requirements.txt -o requirments.txt
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/.github/workflows/requirements.txt -o requirements.txt
             
       - name: setup Python
         uses: actions/setup-python@v2
