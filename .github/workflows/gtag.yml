@@ -60,9 +60,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
       
+      - name: git fetch --unshallow --tags
+        run: git fetch --unshallow --tags
+        
       - name: get tags
         run: git tag --list
-        
+
       - name: GTag (Minor)
         if: ${{ inputs.minor == true }}
         run: |
