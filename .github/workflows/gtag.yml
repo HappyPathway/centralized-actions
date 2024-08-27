@@ -24,6 +24,10 @@ on:
       github_email:
         required: true
         type: string
+      github_server:
+        required: false
+        type: string
+        default: "github.com"
     secrets:
       GH_TOKEN:
         required: true
@@ -89,7 +93,7 @@ jobs:
       
       - name: set tag
         run: |
-          remote_repo="https://${{inputs.github_username}}:${{secrets.GH_TOKEN}}@github.com/${{ github.repository }}.git"
+          remote_repo="https://${{inputs.github_username}}:${{secrets.GH_TOKEN}}@${{ inputs.github_server }}/${{ github.repository }}.git"
           git remote add repo ${remote_repo}
           git config --global user.email "${{inputs.github_email}}"
           git config --global user.name "${{inputs.github_username}}"
