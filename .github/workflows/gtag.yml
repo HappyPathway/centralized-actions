@@ -1,0 +1,59 @@
+name: "Gtag"
+
+on:
+  workflow_call:
+    inputs:
+      minor:
+        required: false
+        type: boolean
+        default: false
+      major:
+        required: false
+        type: boolean
+        default: false
+      patch:  
+        required: false
+        type: boolean
+        default: false
+      github_org:
+        required: true
+        type: string
+    secrets:
+      GH_TOKEN:
+        required: true
+env:
+  GITHUB_OWNER: ${{ inputs.github_org }}
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  
+jobs:
+  gtag:
+    name: "GTag"
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+          
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+          cache: pip
+      
+      - name: install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: GTag
+        run: |
+          python gtag.py
+      
