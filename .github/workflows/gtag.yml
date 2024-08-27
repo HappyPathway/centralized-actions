@@ -32,6 +32,7 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
+     
     steps:
       - uses: actions/checkout@v2
         with:
@@ -59,6 +60,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
       
+      - name: get tags
+        run: git tag --list
+        
       - name: GTag (Minor)
         if: ${{ inputs.minor == true }}
         run: |
