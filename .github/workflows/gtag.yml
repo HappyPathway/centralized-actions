@@ -89,7 +89,7 @@ jobs:
       
       - name: set tag
         run: |
-          git config --local user.email "${{inputs.github_email}}"
-          git config --local user.name "${{inputs.github_username}}"
+          git config --global user.email "${{inputs.github_email}}"
+          git config --global user.name "${{inputs.github_username}}"
           git tag -a ${{ env.next_tag }} -m "Release ${{ env.next_tag }}"
           git push --tags
