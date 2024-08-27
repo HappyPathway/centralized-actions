@@ -62,22 +62,26 @@ jobs:
       
       - name: git fetch --unshallow --tags
         run: git fetch --unshallow --tags
-        
+
       - name: get tags
         run: git tag --list
 
       - name: GTag (Minor)
         if: ${{ inputs.minor == true }}
         run: |
-          python gtag.py --minor
+          echo "next_tag=$(python gtag.py --minor)" >> $GITHUB_ENV 
 
       - name: GTag (Major)
         if: ${{ inputs.major == true }}
         run: |
-          python gtag.py --major
+          echo "next_tag=$(python gtag.py --major)" >> $GITHUB_ENV 
 
       - name: GTag (Patch)
         if: ${{ inputs.patch == true }}
         run: |
-          python gtag.py --patch
+          echo "next_tag=$(python gtag.py --patch)" >> $GITHUB_ENV 
       
+      - name: set tag
+        run: |
+          git tag -a ${{ env.next_tag }} -m "Release ${{ env.next_tag }}"
+          git push --tags
