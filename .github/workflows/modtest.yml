@@ -22,6 +22,13 @@ on:
         type: string
         required: false
         default: main
+      terraform_version:
+        type: string
+        required: true
+      terraform_api:
+        type: string
+        required: false
+        default: app.terraform.io
     secrets:
       TFE_TOKEN:
         required: true
@@ -55,6 +62,13 @@ jobs:
           token: ${{ secrets.GH_TOKEN }} # `GH_PAT` is a secret that contains your PAT
 
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
+          cli_config_credentials_hostname: ${{ inputs.terraform_api }}
+          
       - name: Download Dependenices
         run: |
           stat .modtest_bin 2>/dev/null >/dev/null || mkdir .modtest_bin
@@ -64,6 +78,11 @@ jobs:
           echo "PATH=${PATH}:${PWD}/.modtest_bin" >> $GITHUB_ENV 
           chmod +x .modtest_bin/*
 
+      - name: Terraform Init
+        id: init
+        run: terraform init || echo 1 | terraform init
+        working-directory: ${{ inputs.workspace }}
+        
       - name: testall
         run: |
           testall ${{ inputs.github_server }} ${{ inputs.github_org }} ${{ inputs.mod_source }} ${{ inputs.branch }}
