@@ -30,6 +30,7 @@ on:
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
   
 jobs:
   modtest:
@@ -56,7 +57,16 @@ jobs:
 
       - name: Download Dependenices
         run: |
-          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/modtest -o modtest.py
-          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/testall -o testall
-          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/mod_versions -o mod_versions
-          
+          stat .modtest_bin 2>/dev/null >/dev/null || mkdir .modtest_bin
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/modtest -o .modtest_bin/modtest.py
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/testall -o .modtest_bin/testall
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/mod_versions -o .modtest_bin/mod_versions
+          echo "PATH=${PATH}:${PWD}/.modtest_bin" >> $GITHUB_ENV 
+          chmod +x .modtest_bin/*
+
+      - name: testall
+        run: |
+          testall ${{ inputs.github_server }} ${{ inputs.github_org }} ${{ inputs.mod_source }} ${{ inputs.branch }}
+          terraform plan
+        working-directory: ${{ inputs.workspace }}
+      
