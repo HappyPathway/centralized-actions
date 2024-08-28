@@ -10,7 +10,7 @@ rm ${file_source}-${branch}.sh 2>/dev/null|| echo
 for x in $(mod_versions --source=${source} | jq -n "inputs[].Key")
 do
 	# echo modtest --key=${x} --branch=${branch} >> ${file_source}-${branch}.sh
-	echo modtest --repo=${repo_clone_type} --org=${org} --server=${server} --key=${x} --branch=${branch} --refresh >> ${file_source}-${branch}.sh
+	echo modtest --repo=${repo_clone_type} --org=${org} --server=${server} --key=${x} --branch=${branch} >> ${file_source}-${branch}.sh
 done
 bash ${file_source}-${branch}.sh
 rm ${file_source}-${branch}.sh || echo "No file to remove"
