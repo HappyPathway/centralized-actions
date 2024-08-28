@@ -1,0 +1,54 @@
+name: "ModTest"
+
+on:
+  workflow_call:
+    inputs:
+      workspace:
+        required: true
+        type: string
+      github_server:
+        required: true
+        type: string
+      github_org:
+        required: true
+        type: string
+      mod_source:
+        type: string
+        required: true
+      branch:
+        type: string
+        required: true
+    secrets:
+      TFE_TOKEN:
+        required: true
+      GH_TOKEN:
+        required: true
+env:
+  GITHUB_OWNER: ${{ inputs.github_org }}
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  
+jobs:
+  modtest:
+    name: "Run modtest on target workspace"
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+
+      - name: Checkout workspace repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.github_org }}/${{ inputs.workspace }}
+          path: ${{ inputs.workspace }}
+
+      - name: Download Dependenices
+        run: |
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/modtest -o modtest.py
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/testall -o testall
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/mod_versions -o mod_versions
+          
