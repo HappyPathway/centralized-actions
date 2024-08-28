@@ -77,7 +77,7 @@ jobs:
       - name: Download Dependenices
         run: |
           stat .modtest_bin 2>/dev/null >/dev/null || mkdir .modtest_bin
-          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/modtest -o .modtest_bin/modtest.py
+          curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/modtest -o .modtest_bin/modtest
           curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/testall -o .modtest_bin/testall
           curl -sSL https://raw.githubusercontent.com/HappyPathway/centralized-actions/main/mod_versions -o .modtest_bin/mod_versions
           echo "PATH=${PATH}:${PWD}/.modtest_bin" >> $GITHUB_ENV 
