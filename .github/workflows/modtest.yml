@@ -43,6 +43,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           persist-credentials: false
+          token: ${{ secrets.GH_TOKEN }} # `GH_PAT` is a secret that contains your PAT
 
       - name: Checkout workspace repo
         uses: actions/checkout@v4
@@ -50,6 +51,8 @@ jobs:
           repository: ${{ inputs.github_org }}/${{ inputs.workspace }}
           path: ${{ inputs.workspace }}
           ref: ${{ inputs.workspace_branch }}
+          token: ${{ secrets.GH_TOKEN }} # `GH_PAT` is a secret that contains your PAT
+
 
       - name: Download Dependenices
         run: |
