@@ -76,7 +76,6 @@ jobs:
           terraform_version: ${{ inputs.terraform_version }}
           cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
           cli_config_credentials_hostname: ${{ inputs.terraform_api }}
-          terraform_wrapper: false
           
       - name: Download Dependenices
         run: |
@@ -96,6 +95,61 @@ jobs:
       - name: testall
         run: |
           testall ${{ inputs.github_server }} ${{ inputs.github_org }} ${{ inputs.mod_source }} ${{ inputs.branch }} ${{ inputs.repo_clone_type }}
-          terraform plan
         working-directory: ${{ inputs.workspace }}
+      
+      - name: terraform plan
+        id: plan
+        run: |
+          terraform plan -input=false -out=tfplan
+        working-directory: ${{ inputs.workspace }}
+
+      - name: terraform show
+        id: show
+        run: |
+          terraform show tfplan
+        working-directory: ${{ inputs.workspace }}
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan (ModTest)')
+            })
+
+            // 2. Prepare format of the comment
+            const output = `#### Terraform Plan (ModTest) 🖌\`${{ steps.show.outcome }}\`
+      
+            \`\`\`\n
+            ${{ steps.show.outputs.stdout }}
+            \`\`\`
+      
+            </details>
+      
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Target Workspace: \`${{ inputs.workspace }}\`, Workflow: \`${{ github.workflow }}\`*`;
+      
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
       
