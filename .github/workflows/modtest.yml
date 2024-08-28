@@ -95,7 +95,7 @@ jobs:
         
       - name: testall
         run: |
-          testall ${{ inputs.github_server }} ${{ inputs.github_org }} ${{ inputs.mod_source }} ${{ inputs.branch }}
+          testall ${{ inputs.github_server }} ${{ inputs.github_org }} ${{ inputs.mod_source }} ${{ inputs.branch }} ${{ inputs.repo_clone_type }}
           terraform plan
         working-directory: ${{ inputs.workspace }}
       
