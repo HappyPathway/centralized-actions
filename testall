@@ -1,0 +1,14 @@
+#!/bin/bash
+source=${3}
+branch=${4}
+server=${1}
+org=${2}
+file_source=$(echo ${source} | tr / _)
+rm ${file_source}-${branch}.sh 2>/dev/null|| echo 
+for x in $(mod_versions --source=${source} | jq -n "inputs[].Key")
+do
+	# echo modtest --key=${x} --branch=${branch} >> ${file_source}-${branch}.sh
+	echo modtest --org=${org} --server=${server} --key=${x} --branch=${branch} --refresh >> ${file_source}-${branch}.sh
+done
+bash ${file_source}-${branch}.sh
+rm ${file_source}-${branch}.sh || echo "No file to remove"
