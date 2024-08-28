@@ -6,6 +6,13 @@ on:
       workspace:
         required: true
         type: string
+      workspace_repo:
+        required: true
+        type: string
+      workspace_branch:
+        type: string
+        required: false
+        default: main
       github_server:
         required: true
         type: string
@@ -18,10 +25,6 @@ on:
       branch:
         type: string
         required: true
-      workspace_branch:
-        type: string
-        required: false
-        default: main
       terraform_version:
         type: string
         required: true
@@ -92,6 +95,12 @@ jobs:
           terraform init || echo 1 | terraform init
         working-directory: ${{ inputs.workspace }}
         
+      - name: Terraform Workspace Select
+        id: workspace
+        run: |
+          terraform workspace select ${{ inputs.workspace }}
+        working-directory: ${{ inputs.workspace }}
+
       - name: testall
         run: |
           testall ${{ inputs.github_server }} ${{ inputs.github_org }} ${{ inputs.mod_source }} ${{ inputs.branch }} ${{ inputs.repo_clone_type }}

@@ -1,4 +1,4 @@
-name: "ModTest"
+name: "ModTest (${workspace})"
 
 on:
   pull_request:
