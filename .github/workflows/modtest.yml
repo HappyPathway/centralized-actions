@@ -18,6 +18,10 @@ on:
       branch:
         type: string
         required: true
+      workspace_branch:
+        type: string
+        required: false
+        default: main
     secrets:
       TFE_TOKEN:
         required: true
@@ -45,6 +49,7 @@ jobs:
         with:
           repository: ${{ inputs.github_org }}/${{ inputs.workspace }}
           path: ${{ inputs.workspace }}
+          ref: ${{ inputs.workspace_branch }}
 
       - name: Download Dependenices
         run: |
