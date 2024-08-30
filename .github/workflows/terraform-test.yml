@@ -135,6 +135,7 @@ jobs:
       - name: Commit & Push changes
         run: |
           if ! git diff-index --quiet HEAD; then 
+            git status
             remote_repo="https://${{inputs.github_username}}:${{secrets.GH_TOKEN}}@github.com/${{ github.repository }}.git"
             git remote add repo ${remote_repo}
             git config http.sslVerify false
