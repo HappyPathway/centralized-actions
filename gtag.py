@@ -27,12 +27,15 @@ def main(message, major, minor, patch):
         last_version = semantic_version.Version("0.0.0")
     except UnboundLocalError:
         last_version = semantic_version.Version("0.0.0")
-    if patch:
-        next_version = str(last_version.next_patch())
-    if minor:
-        next_version = str(last_version.next_minor())
-    if major:
-        next_version = str(last_version.next_major())
+    try:
+        if patch:
+            next_version = str(last_version.next_patch())
+        if minor:
+            next_version = str(last_version.next_minor())
+        if major:
+            next_version = str(last_version.next_major())
+    except UnboundLocalError:
+        next_version = semantic_version.Version("0.0.1")
     print(next_version)
     # p = subprocess.Popen(f"git tag -a {next_version} -m '{message}'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # out, _ = p.communicate()
