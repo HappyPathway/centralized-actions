@@ -120,11 +120,11 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan (ModTest)')
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan (ModTest) ${{ inputs.workspace_repo }}/${{ inputs.workspace }}')
             })
 
             // 2. Prepare format of the comment
-            const output = `#### Terraform Plan (ModTest) 🖌\`${{ steps.show.outcome }}\`
+            const output = `#### Terraform Plan (ModTest) ${{ inputs.workspace_repo }}/${{ inputs.workspace }} 🖌\`${{ steps.show.outcome }}\`
       
             \`\`\`\n
             ${{ steps.plan.outputs.stdout }}
