@@ -104,13 +104,7 @@ jobs:
       - name: terraform plan
         id: plan
         run: |
-          terraform plan -input=false -out=tfplan
-        working-directory: ${{ inputs.workspace }}
-
-      - name: terraform show
-        id: show
-        run: |
-          terraform show tfplan
+          terraform plan -input=false -no-color
         working-directory: ${{ inputs.workspace }}
 
       - name: Update Pull Request
@@ -133,7 +127,7 @@ jobs:
             const output = `#### Terraform Plan (ModTest) 🖌\`${{ steps.show.outcome }}\`
       
             \`\`\`\n
-            ${{ steps.show.outputs.stdout }}
+            ${{ steps.plan.outputs.stdout }}
             \`\`\`
       
             </details>
