@@ -49,6 +49,7 @@ env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
   TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+  TF_WORKSPACE: ${{ inputs.workspace }}
   
 jobs:
   modtest:
@@ -92,7 +93,7 @@ jobs:
       - name: Terraform Init
         id: init
         run: |
-          terraform init || echo 1 | terraform init
+          terraform init
         working-directory: ${{ inputs.workspace }}
         
       - name: Terraform Workspace Select
