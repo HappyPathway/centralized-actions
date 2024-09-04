@@ -68,7 +68,7 @@ jobs:
       - name: Checkout workspace repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.github_org }}/${{ inputs.workspace }}
+          repository: ${{ inputs.github_org }}/${{ inputs.workspace_repo }}
           path: ${{ inputs.workspace }}
           ref: ${{ inputs.workspace_branch }}
           token: ${{ secrets.GH_TOKEN }} # `GH_PAT` is a secret that contains your PAT
