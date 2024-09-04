@@ -95,12 +95,6 @@ jobs:
         run: |
           terraform init
         working-directory: ${{ inputs.workspace }}
-        
-      - name: Terraform Workspace Select
-        id: workspace
-        run: |
-          terraform workspace select ${{ inputs.workspace }}
-        working-directory: ${{ inputs.workspace }}
 
       - name: testall
         run: |
