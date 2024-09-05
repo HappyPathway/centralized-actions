@@ -37,6 +37,10 @@ on:
         type: string
         required: false
         default: app_terraform_io
+      terraform_login:
+        type: boolean
+        required: false
+        default: true
       repo_clone_type:
         type: string
         required: false
@@ -76,10 +80,17 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.1.2
+        if: inputs.terraform_login
         with:
           terraform_version: ${{ inputs.terraform_version }}
           cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
           cli_config_credentials_hostname: ${{ inputs.terraform_api }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        if: !inputs.terraform_login
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
           
       - name: Download Dependenices
         run: |
@@ -91,7 +102,7 @@ jobs:
           chmod +x .modtest_bin/*
 
       - name: Set Workspace
-        if: ${{ inputs.workspace != not_set }}
+        if: inputs.workspace != not_set && inputs.workspace != ''
         run: |
           echo "TF_WORKSPACE=${{ inputs.workspace }} >> $GITHUB_ENV
 
@@ -129,7 +140,7 @@ jobs:
             })
 
             // 2. Prepare format of the comment
-            const output = `#### Terraform Plan (ModTest) ${{ inputs.workspace_repo }}/${{ inputs.workspace }} 🖌\`${{ steps.show.outcome }}\`
+            const output = `#### Terraform Plan (ModTest) ${{ inputs.workspace_repo }}/${{ inputs.workspace }}` \`${{ steps.show.outcome }}\`
       
             \`\`\`\n
             ${{ steps.plan.outputs.stdout }}
