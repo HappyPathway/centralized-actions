@@ -90,6 +90,11 @@ jobs:
           echo "PATH=${PATH}:${PWD}/.modtest_bin" >> $GITHUB_ENV 
           chmod +x .modtest_bin/*
 
+      - name: Set Workspace
+        if: ${{ inputs.workspace != not_set }}
+        run: |
+          echo "TF_WORKSPACE=${{ inputs.workspace }} >> $GITHUB_ENV
+
       - name: Terraform Init
         id: init
         run: |
