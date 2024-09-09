@@ -18,6 +18,10 @@ on:
       github_org:
         required: true
         type: string
+      github_server:
+        required: false
+        type: string
+        default: github.com
       autoformat_message:
         default: "AutoFormat Commit"
         type: string
@@ -136,7 +140,7 @@ jobs:
         run: |
           if ! git diff-index --quiet HEAD; then 
             git status
-            remote_repo="https://${{inputs.github_username}}:${{secrets.GH_TOKEN}}@github.com/${{ github.repository }}.git"
+            remote_repo="https://${{inputs.github_username}}:${{secrets.GH_TOKEN}}@${{ inputs.github_server }}/${{ github.repository }}.git"
             git remote add repo ${remote_repo}
             git config http.sslVerify false
             git config --local user.email "${{inputs.github_email}}"
