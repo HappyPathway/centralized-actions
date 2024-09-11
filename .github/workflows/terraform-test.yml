@@ -22,14 +22,22 @@ on:
         default: "AutoFormat Commit"
         type: string
         required: false
+      AWS_ACCESS_KEY_ID:
+        required: true
+        type: string
     secrets:
       TFE_TOKEN:
         required: true
       GH_TOKEN:
         required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   
 jobs:
   terraform:
