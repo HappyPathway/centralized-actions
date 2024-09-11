@@ -22,7 +22,10 @@ on:
         default: "AutoFormat Commit"
         type: string
         required: false
-      AWS_ACCESS_KEY_ID:
+      aws_access_key_id:
+        required: true
+        type: string
+      aws_region:
         required: true
         type: string
     secrets:
@@ -30,14 +33,16 @@ on:
         required: true
       GH_TOKEN:
         required: true
-      AWS_SECRET_ACCESS_KEY:
+      aws_secret_access_key:
         required: true
       
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-  AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ vars.aws_access_key_id }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
+  AWS_REGION: ${{ vars.aws_region }}
+  AWS_DEFAULT_REGION: ${{ vars.aws_region }}
   
 jobs:
   terraform:
