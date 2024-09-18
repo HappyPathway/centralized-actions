@@ -103,7 +103,7 @@ jobs:
       - name: Set Workspace
         if: ${{ inputs.workspace != '' }}
         run: |
-          echo "TF_WORKSPACE=${{ inputs.workspace }} >> $GITHUB_ENV
+          echo "TF_WORKSPACE=${{ inputs.workspace }} >> $GITHUB_ENV"
 
       - name: Terraform Init
         id: init
