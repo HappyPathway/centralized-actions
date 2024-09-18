@@ -125,7 +125,7 @@ jobs:
       - name: terraform plan
         id: plan
         run: |
-          terraform plan -input=false -no-color ${{ inputs.varsfile == "" && "" || "-var-file=" }}${{ inputs.varsfile }}
+          terraform plan -input=false -no-color ${{ inputs.varsfile == '' && '' || '-var-file=' }}${{ inputs.varsfile }}
         working-directory: ${{ inputs.workspace }}
 
       - name: Update Pull Request
