@@ -49,10 +49,13 @@ on:
         required: true
       GH_TOKEN:
         required: true
+      GOOGLE_CREDENTIALS:
+        required: true
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
   TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+  GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
   
 jobs:
   modtest:
