@@ -5,7 +5,6 @@ on:
     inputs:
       workspace:
         required: false
-        default: not_set
         type: string
       workspace_repo:
         required: true
@@ -102,7 +101,7 @@ jobs:
           chmod +x .modtest_bin/*
 
       - name: Set Workspace
-        if: inputs.workspace != "not_set" && inputs.workspace != ''
+        if: ${{ inputs.workspace != '' }}
         run: |
           echo "TF_WORKSPACE=${{ inputs.workspace }} >> $GITHUB_ENV
 
