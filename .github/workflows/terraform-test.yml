@@ -63,6 +63,9 @@ jobs:
         id: fmt
         run: terraform fmt
 
+      - name: cleanup
+        run: rm -rf .terraform || echo "no prior workspace"
+        
       - name: Terraform Init
         id: init
         run: terraform init || echo 1 | terraform init
