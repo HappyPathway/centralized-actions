@@ -131,6 +131,13 @@ jobs:
           name: ${{ env.planfile }}-tfdir
           path: ${{ github.workspace }}
 
+      - uses: actions/upload-artifact@master
+        name: Archive Lockfile
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: ${{ env.planfile }}-lockfile
+          path: ${{ github.workspace }}/.terraform.lock.hcl
+
       - name: Update Pull Request
         uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
