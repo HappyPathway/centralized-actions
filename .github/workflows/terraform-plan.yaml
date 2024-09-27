@@ -132,6 +132,7 @@ jobs:
           name: ${{ env.planfile }}
           path: ${{ github.workspace }}
           include-hidden-files: true
+          retention-days: 1
 
       - name: Update Pull Request
         uses: actions/github-script@v6
