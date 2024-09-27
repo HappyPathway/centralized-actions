@@ -117,6 +117,8 @@ jobs:
         id: plan
         run: terraform plan -out=terraform.tfplan
 
+      - name: clean up lockfile
+        run: rm .terraform.lock.hcl
       # - uses: actions/upload-artifact@master
       #   name: Archive Planfile
       #   if: github.ref == 'refs/heads/main'
