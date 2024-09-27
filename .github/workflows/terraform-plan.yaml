@@ -115,7 +115,7 @@ jobs:
         
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out=${{ env.planfile }}
+        run: terraform plan -out=terraform.tfplan
 
       # - uses: actions/upload-artifact@master
       #   name: Archive Planfile
