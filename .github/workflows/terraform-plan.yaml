@@ -44,6 +44,10 @@ on:
         required: false
       GOOGLE_CREDENTIALS:
         required: false
+    outputs:
+      planfile:
+        description: "Terraform Plan Output File"
+        value: ${{ jobs.terraform.outputs.planfile }}
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -55,6 +59,8 @@ jobs:
   terraform:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
+    outputs:
+      planfile: ${{ inputs.workspace == '' &&  steps.plan_name_default.outputs.planfile || steps.plan_name_non_default.outputs.planfile }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -93,9 +99,30 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
+      - name: Generate Plan Name (non-default)
+        id: plan_name_non_default
+        run: |
+          echo planfile=${{ inputs.workspace }}-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_ENV
+          echo planfile=${{ inputs.workspace }}-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_OUTPUT
+        if: ${{ inputs.workspace != '' }}
+
+      - name: Generate Plan Name (default)
+        id: plan_name_default
+        run: |
+          echo planfile=default-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_ENV
+          echo planfile=default-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_OUTPUT
+        if: ${{ inputs.workspace == '' }}
+        
       - name: Terraform Plan
         id: plan
-        run: terraform plan
+        run: terraform plan -out=${{ env.planfile }}
+
+      - uses: actions/upload-artifact@master
+        name: Archive Planfile
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: ${{ env.planfile }}
+          path: ${{ env.planfile }}
 
       - name: Update Pull Request
         uses: actions/github-script@v6
