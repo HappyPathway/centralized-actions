@@ -111,6 +111,11 @@ jobs:
         run: |
           echo "TF_WORKSPACE=${{ inputs.workspace }} >> $GITHUB_ENV"
 
+      - name: Set Varsfile
+        if: ${{ inputs.varsfile != '' }}
+        run: |
+          echo "TF_CLI_ARGS_plan=-var-file=${{ inputs.varsfile }}"
+          
       - name: Terraform Init
         id: init
         run: |
@@ -121,11 +126,11 @@ jobs:
         run: |
           testall ${{ inputs.github_server }} ${{ inputs.github_org }} ${{ inputs.mod_source }} ${{ inputs.branch }} ${{ inputs.repo_clone_type }}
         working-directory: ${{ inputs.workspace }}
-      
+
       - name: terraform plan
         id: plan
         run: |
-          terraform plan -input=false -no-color ${{ inputs.varsfile == '' && '' || '-var-file=' }}${{ inputs.varsfile }}
+          terraform plan -input=false -no-color 
         working-directory: ${{ inputs.workspace }}
 
       - name: Update Pull Request
