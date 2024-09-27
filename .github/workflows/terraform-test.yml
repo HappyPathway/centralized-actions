@@ -27,18 +27,17 @@ on:
         type: string
         required: false
       AWS_ACCESS_KEY_ID:
-        required: true
+        required: false
         type: string
     secrets:
       TFE_TOKEN:
         required: true
       GH_TOKEN:
         required: true
-      
       AWS_SECRET_ACCESS_KEY:
-        required: true
+        required: false
       GOOGLE_CREDENTIALS:
-        required: true
+        required: false
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
