@@ -60,9 +60,10 @@ jobs:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
     outputs:
-      commit_sha: ${{ github.head_ref }}
+      commit_sha: ${{ steps.checkout.outputs.commit }}
     steps:
       - uses: actions/checkout@v4
+        id: checkout
         with:
           ref: ${{ github.head_ref }}
           persist-credentials: false
