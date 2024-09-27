@@ -1,0 +1,136 @@
+name: "Terraform"
+
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        required: true
+        type: string
+      terraform_api:
+        required: true
+        type: string
+      github_username:
+        required: true
+        type: string
+      github_email:
+        required: true
+        type: string
+      github_org:
+        required: true
+        type: string
+      github_server:
+        required: false
+        type: string
+        default: github.com
+      workspace:
+        required: false
+        type: string
+      varfile:
+        required: false
+        type: string
+      autoformat_message:
+        default: "AutoFormat Commit"
+        type: string
+        required: false
+    secrets:
+      TFE_TOKEN:
+        required: true
+      GH_TOKEN:
+        required: true
+env:
+  GITHUB_OWNER: ${{ inputs.github_org }}
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  
+jobs:
+  terraform:
+    name: "Terraform FMT and Validation"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+          
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
+          cli_config_credentials_hostname: ${{ inputs.terraform_api }}
+
+      - name: cleanup
+        run: rm -rf .terraform || echo "no prior workspace"
+
+      - name: Set Workspace
+        if: ${{ inputs.workspace != '' }}
+        run: |
+          echo "TF_WORKSPACE=${{ inputs.workspace }} >> $GITHUB_ENV"
+
+      - name: Set Varfile
+        if: ${{ inputs.varfile != '' }}
+        run: |
+          echo "TF_CLI_ARGS=-var-file=${{ inputs.varfile }} >> $GITHUB_ENV"
+          
+      - name: Terraform Init
+        id: init
+        run: terraform init -upgrade
+      
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Plan')
+            })
+
+            // 2. Prepare format of the comment
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Test \`${{ steps.test.outcome }}\`
+            <details><summary>Test Output</summary>
+      
+            \`\`\`\n
+            ${{ steps.test.outputs.stdout }}
+            \`\`\`
+      
+            </details>
+      
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+      
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
