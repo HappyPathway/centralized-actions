@@ -117,28 +117,20 @@ jobs:
         id: plan
         run: terraform plan -out=${{ env.planfile }}
 
-      - uses: actions/upload-artifact@master
-        name: Archive Planfile
-        if: github.ref == 'refs/heads/main'
-        with:
-          name: ${{ env.planfile }}
-          path: ${{ env.planfile }}
-          include-hidden-files: true
+      # - uses: actions/upload-artifact@master
+      #   name: Archive Planfile
+      #   if: github.ref == 'refs/heads/main'
+      #   with:
+      #     name: ${{ env.planfile }}
+      #     path: ${{ env.planfile }}
+      #     include-hidden-files: true
 
       - uses: actions/upload-artifact@master
         name: Archive Configuration
         if: github.ref == 'refs/heads/main'
         with:
-          name: ${{ env.planfile }}-tfdir
+          name: ${{ env.planfile }}
           path: ${{ github.workspace }}
-          include-hidden-files: true
-
-      - uses: actions/upload-artifact@master
-        name: Archive Lockfile
-        if: github.ref == 'refs/heads/main'
-        with:
-          name: ${{ env.planfile }}-lockfile
-          path: ${{ github.workspace }}/.terraform.lock.hcl
           include-hidden-files: true
 
       - name: Update Pull Request
