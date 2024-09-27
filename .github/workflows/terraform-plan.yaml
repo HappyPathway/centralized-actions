@@ -45,9 +45,9 @@ on:
       GOOGLE_CREDENTIALS:
         required: false
     outputs:
-      planfile:
-        description: "Terraform Plan Output File"
-        value: ${{ jobs.terraform.outputs.planfile }}
+      commit_sha:
+        description: "Repo Commit Sha"
+        value: ${{ jobs.terraform.outputs.commit_sha }}
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -60,7 +60,7 @@ jobs:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
     outputs:
-      planfile: ${{ inputs.workspace == '' &&  steps.plan_name_default.outputs.planfile || steps.plan_name_non_default.outputs.planfile }}
+      commit_sha: ${{ github.head_ref }}
     steps:
       - uses: actions/checkout@v4
         with:
