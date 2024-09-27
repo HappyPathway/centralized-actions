@@ -123,6 +123,7 @@ jobs:
         with:
           name: ${{ env.planfile }}
           path: ${{ env.planfile }}
+          include-hidden-files: true
 
       - uses: actions/upload-artifact@master
         name: Archive Configuration
@@ -130,6 +131,7 @@ jobs:
         with:
           name: ${{ env.planfile }}-tfdir
           path: ${{ github.workspace }}
+          include-hidden-files: true
 
       - uses: actions/upload-artifact@master
         name: Archive Lockfile
@@ -137,6 +139,7 @@ jobs:
         with:
           name: ${{ env.planfile }}-lockfile
           path: ${{ github.workspace }}/.terraform.lock.hcl
+          include-hidden-files: true
 
       - name: Update Pull Request
         uses: actions/github-script@v6
