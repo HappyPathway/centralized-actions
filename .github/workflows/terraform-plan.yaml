@@ -78,12 +78,12 @@ jobs:
       - name: Set Workspace
         if: ${{ inputs.workspace != '' }}
         run: |
-          echo "TF_WORKSPACE=${{ inputs.workspace }} >> $GITHUB_ENV"
+          echo "TF_WORKSPACE=${{ inputs.workspace }}" >> $GITHUB_ENV
 
       - name: Set Varfile
         if: ${{ inputs.varfile != '' }}
         run: |
-          echo "TF_CLI_ARGS=-var-file=${{ inputs.varfile }} >> $GITHUB_ENV"
+          echo "TF_CLI_ARGS=-var-file=${{ inputs.varfile }}" >> $GITHUB_ENV
           
       - name: Terraform Init
         id: init
