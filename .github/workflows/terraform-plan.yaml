@@ -35,6 +35,12 @@ on:
       AWS_ACCESS_KEY_ID:
         required: false
         type: string
+      setup_terraform:
+        type: boolean
+        default: false
+      terraform_init:
+        type: boolean
+        default: false
     secrets:
       TFE_TOKEN:
         required: true
@@ -74,6 +80,7 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.1.2
+        if: ${{ inputs.setup_terraform }}
         with:
           terraform_version: ${{ inputs.terraform_version }}
           cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
@@ -94,47 +101,42 @@ jobs:
           
       - name: Terraform Init
         id: init
+        if: ${{ inputs.terraform_init }}
         run: terraform init -upgrade
       
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate -no-color
+      - name: Generate Plan Name (non-default)
+        id: plan_name_non_default
+        run: |
+          echo planfile=${{ inputs.workspace }}-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_ENV
+          echo planfile=${{ inputs.workspace }}-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_OUTPUT
+        if: ${{ inputs.workspace != '' }}
 
-      # - name: Generate Plan Name (non-default)
-      #   id: plan_name_non_default
-      #   run: |
-      #     echo planfile=${{ inputs.workspace }}-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_ENV
-      #     echo planfile=${{ inputs.workspace }}-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_OUTPUT
-      #   if: ${{ inputs.workspace != '' }}
-
-      # - name: Generate Plan Name (default)
-      #   id: plan_name_default
-      #   run: |
-      #     echo planfile=default-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_ENV
-      #     echo planfile=default-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_OUTPUT
-      #   if: ${{ inputs.workspace == '' }}
+      - name: Generate Plan Name (default)
+        id: plan_name_default
+        run: |
+          echo planfile=default-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_ENV
+          echo planfile=default-${{ github.run_id }}-${{ github.run_attempt }} >> $GITHUB_OUTPUT
+        if: ${{ inputs.workspace == '' }}
         
       - name: Terraform Plan
         id: plan
-        run: terraform plan
+        run: terraform plan -out=${{ env.planfile }}
 
-      # - name: clean up lockfile
-      #   run: rm .terraform.lock.hcl
-      # - uses: actions/upload-artifact@master
-      #   name: Archive Planfile
-      #   if: github.ref == 'refs/heads/main'
-      #   with:
-      #     name: ${{ env.planfile }}
-      #     path: ${{ env.planfile }}
-      #     include-hidden-files: true
+      - uses: actions/upload-artifact@master
+        name: Archive Planfile
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: ${{ env.planfile }}
+          path: ${{ env.planfile }}
+          include-hidden-files: true
 
-      # - uses: actions/upload-artifact@master
-      #   name: Archive Configuration
-      #   if: github.ref == 'refs/heads/main'
-      #   with:
-      #     name: ${{ env.planfile }}
-      #     path: ${{ github.workspace }}
-      #     retention-days: 1
+      - uses: actions/upload-artifact@master
+        name: Archive Configuration
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: ${{ env.planfile }}
+          path: ${{ github.workspace }}
+          retention-days: 1
 
       - name: Update Pull Request
         uses: actions/github-script@v6
