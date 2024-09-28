@@ -98,9 +98,6 @@ jobs:
         id: fmt
         run: terraform fmt
 
-      - name: cleanup
-        run: rm -rf .terraform || echo "no prior workspace"
-
       - name: Set Workspace
         if: ${{ inputs.workspace != '' }}
         run: |
