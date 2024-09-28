@@ -110,9 +110,6 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
           cli_config_credentials_hostname: ${{ inputs.terraform_api }}
 
-      - name: cleanup
-        run: rm -rf .terraform || echo "no prior workspace"
-
       - name: Set Workspace
         if: ${{ inputs.workspace != '' }}
         run: |
