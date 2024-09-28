@@ -76,7 +76,7 @@ jobs:
           ref: ${{ github.head_ref }}
           persist-credentials: false
           
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@master
         if: ${{ inputs.download_cache }}
         with:
           name: terraform_dir
