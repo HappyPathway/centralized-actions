@@ -126,7 +126,7 @@ jobs:
       - name: Terraform Init
         id: init
         if: ${{ inputs.terraform_init }}
-        run: terraform init -upgrade
+        run: terraform init
       
       - name: Generate Plan Name (non-default)
         id: plan_name_non_default
