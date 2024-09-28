@@ -41,6 +41,12 @@ on:
       AWS_ACCESS_KEY_ID:
         required: false
         type: string
+      download_cache:
+        type: boolean
+        default: false
+      cache:
+        required: false
+        type: string
     secrets:
       TFE_TOKEN:
         required: true
@@ -70,6 +76,12 @@ jobs:
           ref: ${{ github.head_ref }}
           persist-credentials: false
           
+      - uses: actions/download-artifact@v4
+        if: ${{ inputs.download_cache }}
+        with:
+          name: terraform_dir
+          path: ${{ inputs.cache }}/.terraform
+
       - uses: actions/setup-node@v3
         with:
           node-version: 16
