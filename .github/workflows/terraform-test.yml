@@ -88,7 +88,7 @@ jobs:
         
       - name: set TF Data Dir
         if: ${{ inputs.download_cache }}
-        run: mv terraform_data/${{ inputs.cache }}/* .terraform/
+        run: mv terraform_data/terraform_dir/* .terraform/
 
       - name: ls -la .terraform
         if: ${{ inputs.download_cache }}
