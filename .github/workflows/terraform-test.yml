@@ -82,12 +82,12 @@ jobs:
           name: ${{ inputs.cache }}
           path: .
 
+      - name: Find .terraform
+        run: find . -name .terraform -type d
+        
       - name: set TF Data Dir
         if: ${{ inputs.download_cache }}
         run: mv terraform_dir/.terraform .
-
-      - name: ls -la
-        run: ls -la
         
       - uses: actions/setup-node@v3
         with:
