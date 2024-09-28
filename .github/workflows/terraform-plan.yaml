@@ -83,8 +83,20 @@ jobs:
       - uses: actions/download-artifact@master
         if: ${{ inputs.download_cache }}
         with:
-          name: terraform_dir
-          path: ${{ inputs.cache }}/.terraform
+          name: ${{ inputs.cache }}
+          path: terraform_data
+
+      - name: mkdir .terraform
+        if: ${{ inputs.download_cache }}
+        run: mkdir .terraform
+        
+      - name: set TF Data Dir
+        if: ${{ inputs.download_cache }}
+        run: mv terraform_data/terraform_dir/* .terraform/
+
+      - name: fix file permissions
+        if: ${{ inputs.download_cache }}
+        run: chmod -R 777 .terraform
 
       - uses: actions/setup-node@v3
         with:
