@@ -80,23 +80,20 @@ jobs:
         if: ${{ inputs.download_cache }}
         with:
           name: ${{ inputs.cache }}
-          path: .terraform
+          path: terraform_data
 
-      - name: ls -la .terraform
-        run: ls -la .terraform
-        
-      - name: Find .terraform
-        run: find . -name .terraform -type d
+      - name: mkdir .terraform
+        if: ${{ inputs.download_cache }}
+        run: mkdir .terraform
         
       - name: set TF Data Dir
         if: ${{ inputs.download_cache }}
-        run: mv terraform_dir/.terraform .
+        run: mv terraform_data/${{ inputs.cache }}/* .terraform/
         
       - uses: actions/setup-node@v3
         with:
           node-version: 16
 
-        
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.1.2
         if: ${{ inputs.setup_terraform }}
