@@ -26,6 +26,15 @@ on:
         default: "AutoFormat Commit"
         type: string
         required: false
+      setup_terraform:
+        type: bool
+        default: false
+      workspace:
+        required: false
+        type: string
+      varfile:
+        required: false
+        type: string
       AWS_ACCESS_KEY_ID:
         required: false
         type: string
@@ -64,6 +73,7 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.1.2
+        if: ${{ inputs.setup_terraform }}
         with:
           terraform_version: ${{ inputs.terraform_version }}
           cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
@@ -75,10 +85,21 @@ jobs:
 
       - name: cleanup
         run: rm -rf .terraform || echo "no prior workspace"
-        
+
+      - name: Set Workspace
+        if: ${{ inputs.workspace != '' }}
+        run: |
+          echo "TF_WORKSPACE=${{ inputs.workspace }}" >> $GITHUB_ENV
+
+      - name: Set Varfile
+        if: ${{ inputs.varfile != '' }}
+        run: |
+          echo "TF_CLI_ARGS=-var-file=${{ inputs.varfile }}" >> $GITHUB_ENV
+          
       - name: Terraform Init
         id: init
-        run: terraform init || echo 1 | terraform init
+        if: ${{ inputs.terraform_init }}
+        run: terraform init -upgrade
       
       - name: Terraform Validate
         id: validate
