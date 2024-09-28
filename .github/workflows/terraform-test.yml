@@ -27,11 +27,14 @@ on:
         type: string
         required: false
       setup_terraform:
-        type: bool
+        type: boolean
         default: false
       workspace:
         required: false
         type: string
+      terraform_init:
+        type: boolean
+        default: false
       varfile:
         required: false
         type: string
