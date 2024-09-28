@@ -44,6 +44,9 @@ on:
       download_cache:
         type: boolean
         default: false
+      cache:
+        required: false
+        type: string
     secrets:
       TFE_TOKEN:
         required: true
