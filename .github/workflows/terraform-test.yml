@@ -80,8 +80,11 @@ jobs:
         if: ${{ inputs.download_cache }}
         with:
           name: ${{ inputs.cache }}
-          path: .
+          path: .terraform
 
+      - name: ls -la .terraform
+        run: ls -la .terraform
+        
       - name: Find .terraform
         run: find . -name .terraform -type d
         
