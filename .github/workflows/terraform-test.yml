@@ -79,8 +79,8 @@ jobs:
       - uses: actions/download-artifact@master
         if: ${{ inputs.download_cache }}
         with:
-          name: terraform_dir
-          path: ${{ inputs.cache }}/.terraform
+          name: ${{ inputs.cache }}
+          path: .terraform
 
       - uses: actions/setup-node@v3
         with:
