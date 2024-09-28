@@ -82,6 +82,10 @@ jobs:
           name: ${{ inputs.cache }}
           path: .
 
+      - name: set TF Data Dir
+        if: ${{ inputs.download_cache }}
+        run: echo TF_DATA_DIR=${{ github.workspace }}/terraform_dir/.terraform >> ${{ GITHUB_ENV }}
+
       - uses: actions/setup-node@v3
         with:
           node-version: 16
