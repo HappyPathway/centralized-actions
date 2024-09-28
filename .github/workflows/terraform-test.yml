@@ -84,14 +84,15 @@ jobs:
 
       - name: set TF Data Dir
         if: ${{ inputs.download_cache }}
-        run: echo TF_DATA_DIR=${{ github.workspace }}/terraform_dir/.terraform >> $GITHUB_ENV
+        run: mv terraform_dir/.terraform .
 
+      - name: ls -la
+        run: ls -la
+        
       - uses: actions/setup-node@v3
         with:
           node-version: 16
 
-      - name: ls -la
-        run: ls -la
         
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.1.2
