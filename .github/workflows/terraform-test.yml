@@ -90,9 +90,8 @@ jobs:
         if: ${{ inputs.download_cache }}
         run: mv terraform_data/terraform_dir/* .terraform/
 
-      - name: ls -la .terraform
-        if: ${{ inputs.download_cache }}
-        run: ls -la .terraform
+      - name: fix file permissions
+        run: chmod -R 777 .terraform
         
       - uses: actions/setup-node@v3
         with:
