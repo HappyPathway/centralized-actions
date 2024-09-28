@@ -41,6 +41,9 @@ on:
       terraform_init:
         type: boolean
         default: false
+      download_cache:
+        type: boolean
+        default: false
     secrets:
       TFE_TOKEN:
         required: true
@@ -73,7 +76,13 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           persist-credentials: false
-          
+
+      - uses: actions/download-artifact@v4
+        if: ${{ inputs.download_cache }}
+        with:
+          name: terraform_dir
+          path: ${{ inputs.cache }}/.terraform
+
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -129,14 +138,6 @@ jobs:
           name: ${{ env.planfile }}
           path: ${{ env.planfile }}
           include-hidden-files: true
-
-      - uses: actions/upload-artifact@master
-        name: Archive Configuration
-        if: github.ref == 'refs/heads/main'
-        with:
-          name: ${{ env.planfile }}
-          path: ${{ github.workspace }}
-          retention-days: 1
 
       - name: Update Pull Request
         uses: actions/github-script@v6
