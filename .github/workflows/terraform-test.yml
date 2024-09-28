@@ -80,7 +80,7 @@ jobs:
         if: ${{ inputs.download_cache }}
         with:
           name: ${{ inputs.cache }}
-          path: .terraform
+          path: .
 
       - uses: actions/setup-node@v3
         with:
