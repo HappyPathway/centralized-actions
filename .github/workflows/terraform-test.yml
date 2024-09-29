@@ -47,6 +47,9 @@ on:
       cache:
         required: false
         type: string
+      commit_sha:
+        required: false
+        type: string
     secrets:
       TFE_TOKEN:
         required: true
@@ -81,7 +84,7 @@ jobs:
       - uses: actions/checkout@v4
         id: checkout
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.commit_sha == '' && github.head_ref || inputs.commit_sha }}
           persist-credentials: false
           
       - uses: actions/download-artifact@master
