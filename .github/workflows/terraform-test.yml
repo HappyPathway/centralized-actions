@@ -56,6 +56,11 @@ on:
         required: false
       GOOGLE_CREDENTIALS:
         required: false
+    outputs:
+      commit_sha:
+        description: "Commit SHA"
+        value: ${{ jobs.terraform.outputs.commit_sha }}
+      
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -70,8 +75,11 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
+    outputs:
+      commit_sha: ${{ steps.checkout.outputs.commit }}
     steps:
       - uses: actions/checkout@v4
+        id: checkout
         with:
           ref: ${{ github.head_ref }}
           persist-credentials: false
