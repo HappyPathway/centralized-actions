@@ -58,8 +58,11 @@ on:
         required: false
     outputs:
       commit_sha:
-        description: "Repo Commit Sha"
+        description: "Commit SHA"
         value: ${{ jobs.terraform.outputs.commit_sha }}
+      planfile:
+        description: "Name of Planfile Artifact"
+        value: ${{ jobs.terraform.outputs.planfile }}
 env:
   GITHUB_OWNER: ${{ inputs.github_org }}
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -74,6 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       commit_sha: ${{ steps.checkout.outputs.commit }}
+      planfile: ${{ env.planfile }}
     steps:
       - uses: actions/checkout@v4
         id: checkout
