@@ -103,6 +103,7 @@ jobs:
 
       - name: fix file permissions
         run: chmod -R 777 .terraform
+        if: ${{ inputs.download_cache }}
         
       - uses: actions/setup-node@v3
         with:
