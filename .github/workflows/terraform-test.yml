@@ -135,7 +135,13 @@ jobs:
         id: init
         if: ${{ inputs.terraform_init }}
         run: terraform init -upgrade
-      
+
+      - name: ls -la 
+        run: |
+          ls -la
+          ls -la .terraform
+          find .terraform -type f
+          
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
