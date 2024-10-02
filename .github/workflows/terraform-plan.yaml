@@ -114,6 +114,21 @@ jobs:
         if: ${{ inputs.download_cache }}
         run: chmod -R 777 .terraform
 
+      - name: download lockfile
+        uses: actions/download-artifact@master
+        if: ${{ inputs.download_cache }}
+        with:
+          name: terraform_lockfile
+          path: terraform_lockfile
+
+      - name: move lockfile
+        if: ${{ inputs.download_cache }}
+        run: mv terraform_lockfile/.terraform.lock.hcl .
+
+      - name: fix file permissions
+        if: ${{ inputs.download_cache }}
+        run: chmod -R 600 .terraform.lock.hcl
+        
       - uses: actions/setup-node@v3
         with:
           node-version: 16
