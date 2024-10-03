@@ -228,9 +228,10 @@ jobs:
         
       - name: Commit & Push changes
         run: |
-          if ! git diff-index --quiet HEAD; then 
+          if ! git diff-index --quiet HEAD; then
+            echo ${{ secrets.GH_TOKEN }} | gh login --git-protocol=https --hostname=${{ inputs.github_server }} --with-token
             git status
-            remote_repo="https://${{inputs.github_username}}:${{secrets.GH_TOKEN}}@${{ inputs.github_server }}/${{ github.repository }}.git"
+            remote_repo="https://${{ inputs.github_server }}/${{ github.repository }}.git"
             git remote add repo ${remote_repo}
             git config http.sslVerify false
             git config --local user.email "${{inputs.github_email}}"
