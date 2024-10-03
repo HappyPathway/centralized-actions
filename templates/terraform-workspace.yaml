@@ -1,0 +1,138 @@
+name: "Terraform Workspace Pipeline"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  GITHUB_OWNER: ${{ vars.GH_ORG }}
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  TF_WORKSPACE: happypathway
+  TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+  
+jobs:
+  setup-terraform:
+    outputs:
+      commit_sha: ${{ steps.checkout.outputs.commit }}
+        
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        id: checkout
+          
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: ${{ vars.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
+          cli_config_credentials_hostname: ${{ vars.terraform_api }}
+          
+      - name: terraform init
+        run: terraform init -upgrade
+
+      - uses: actions/upload-artifact@master
+        name: Archive Configuration
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: terraform_dir
+          path: .terraform
+          retention-days: 1
+          include-hidden-files: true
+
+      - uses: actions/upload-artifact@master
+        name: Archive Lockfile
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: terraform_lockfile
+          path: .terraform.lock.hcl
+          retention-days: 1
+          include-hidden-files: true
+          
+          
+  terraform-validate:
+    needs: setup-terraform
+    uses: HappyPathway/centralized-actions/.github/workflows/terraform-test.yml@main
+    with:
+      terraform_version: ${{ vars.terraform_version }}
+      terraform_api: ${{ vars.terraform_api }}
+      github_username: ${{ github.actor }}
+      github_email: ${{ github.actor }}@roknsound.com
+      github_org: ${{ github.repository_owner }}
+      setup_terraform: false
+      terraform_init: false
+      cache: ${{ github.workspace }}
+      download_cache: true
+      commit_sha: ${{ needs.setup-terraform.outputs.commit_sha }}
+    secrets:
+      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+     
+  terraform-plan:
+    needs: terraform-validate
+    uses: HappyPathway/centralized-actions/.github/workflows/terraform-plan.yaml@main
+    with:
+      terraform_version: ${{ vars.terraform_version }}
+      terraform_api: ${{ vars.terraform_api }}
+      github_username: ${{ github.actor }}
+      github_email: ${{ github.actor }}@roknsound.com
+      github_org: ${{ github.repository_owner }} 
+      workspace: happypathway
+      setup_terraform: false
+      terraform_init: false
+      cache: ${{ github.workspace }}
+      download_cache: true
+      commit_sha: ${{ needs.terraform-validate.outputs.commit_sha }}
+    secrets:
+      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+    
+  terraform-apply:
+    runs-on: ubuntu-latest
+    needs: terraform-plan
+    environment: requires_approval
+    if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.pending_changes
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.terraform-plan.outputs.commit_sha }}
+          persist-credentials: false
+           
+      - uses: actions/download-artifact@master
+        with:
+          name: terraform_dir
+          path: terraform_data
+
+      - name: mkdir .terraform
+        run: mkdir .terraform
+        
+      - name: set TF Data Dir
+        run: mv terraform_data/* .terraform/
+
+      - name: fix file permissions
+        run: chmod -R 777 .terraform
+
+      - name: download lockfile
+        uses: actions/download-artifact@master
+        with:
+          name: terraform_lockfile
+          path: terraform_lockfile
+
+      - name: move lockfile
+        run: mv terraform_lockfile/.terraform.lock.hcl .
+
+      - name: fix file permissions
+        run: chmod -R 600 .terraform.lock.hcl
+        
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ needs.terraform-plan.outputs.planfile }}
+          path: terraform_plan
+        
+      - name: Terraform Apply
+        run: terraform apply -auto-approve terraform_plan/${{ needs.terraform-plan.outputs.planfile }}
