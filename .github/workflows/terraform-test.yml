@@ -150,12 +150,6 @@ jobs:
         id: init
         if: ${{ inputs.terraform_init }}
         run: terraform init -upgrade
-
-      - name: ls -la 
-        run: |
-          ls -la
-          ls -la .terraform
-          find .terraform -type f
           
       - name: Terraform Validate
         id: validate
@@ -167,6 +161,7 @@ jobs:
 
       - name: Render terraform docs inside the README.md and push changes back to PR branch
         uses: terraform-docs/gh-actions@v1.2.0
+        if: github.event_name == 'pull_request'
         with:
           working-dir: .
           output-file: README.md
