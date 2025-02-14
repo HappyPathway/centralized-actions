@@ -1,0 +1,45 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: Apply Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: Export GitHub Secrets and Variables to Terraform
+        run: |
+          # Export all secrets as TF_VAR_ variables dynamically
+          for secret in $(echo "${{ toJSON(secrets) }}" | jq -r 'keys[]'); do
+            echo "TF_VAR_${secret}=${{ secrets[secret] }}" >> $GITHUB_ENV
+          done
+          
+          # Export all repository variables as TF_VAR_ variables dynamically
+          for var in $(echo "${{ toJSON(vars) }}" | jq -r 'keys[]'); do
+            echo "TF_VAR_${var}=${{ vars[var] }}" >> $GITHUB_ENV
+          done
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
